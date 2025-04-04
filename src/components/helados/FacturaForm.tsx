@@ -1,4 +1,6 @@
 'use client'
+import { useSession } from '@/hooks/useSession'
+import { guardarTicket } from '@/lib/actions'
 import { useEffect, useState } from 'react'
 
 interface HeladoSeleccionado {
@@ -137,6 +139,8 @@ export default function FacturaForm(props: any) {
     }))
   }, [heladosSeleccionados])
 
+  const session = useSession()
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
 
@@ -150,8 +154,15 @@ export default function FacturaForm(props: any) {
       alert('Debe seleccionar al menos un helado')
       return
     }
+    try {
+      console.log('se intenta guardar la data')
+      guardarTicket(datosFactura, session?.id || 0)
+    } catch (error) {
+      console.error('Error al guardar el ticket:', error)
+      alert('Hubo un error al generar la factura.')
+    }
 
-    console.log('Factura generada:', datosFactura)
+    // console.log('Factura generada:', datosFactura)
     // Aquí podrías enviar los datos a tu API o realizar otras acciones
   }
 

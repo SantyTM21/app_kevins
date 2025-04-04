@@ -2,12 +2,16 @@ import { Usuario, SessionData } from './types'
 
 export function getSession(): Usuario | null {
   try {
+    // Verifica si localStorage está disponible
+    if (typeof window === 'undefined' || !localStorage) {
+      return null // Retorna null si no estamos en un navegador
+    }
+
     const session = localStorage.getItem('session')
     if (!session) return null
 
     const sessionData: SessionData = JSON.parse(session)
     if (Date.now() > sessionData.expiresAt) {
-      // Si la sesión ha expirado, la eliminamos y devolvemos null
       localStorage.removeItem('session')
       return null
     }

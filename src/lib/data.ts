@@ -88,3 +88,73 @@ export async function getSaboresHelados(id: number): Promise<SaborHelado[]> {
     throw new Error('Failed to fetch flavors data.')
   }
 }
+
+interface Ticket {
+  id: number
+  fecha: string
+  cliente: string
+  direccion: string
+  telefono: string
+  total: number
+  observaciones: string | null
+  id_vendedor: number | null
+  id_estado: number
+  detalles: {
+    id: number
+    cantidad: number
+    id_helado: number
+    subtotal: number
+    id_ticket: number
+  }[]
+}
+
+export async function getAllTickets(): Promise<Ticket[]> {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is not defined in the environment variables')
+  }
+
+  const sql = neon(process.env.DATABASE_URL)
+
+  try {
+    const tickets = await sql`
+      SELECT 
+        t.id,
+        t.fecha,
+        t.cliente,
+        t.direccion,
+        t.telefono,
+        t.total,
+        t.observaciones,
+        t.id_vendedor,
+        t.id_estado,
+        (
+          SELECT JSON_AGG(
+            JSON_BUILD_OBJECT(
+              'id', td.id,
+              'cantidad', td.cantidad,
+              'id_helado', td.id_helado,
+              'subtotal', td.subtotal,
+              'id_ticket', td.id_ticket
+            )
+          )
+          FROM ticket_detalle td
+          WHERE td.id_ticket = t.id
+        ) AS detalles
+      FROM 
+        ticket t
+      ORDER BY t.fecha DESC;
+    `
+
+    // Si no hay tickets, devolver un array vacío
+    if (!tickets.length) {
+      return []
+    }
+
+    // Los detalles ya vienen como JSON desde la base de datos, no necesitamos procesarlos manualmente
+    console.log('Tickets recuperados exitosamente')
+    return tickets as Ticket[]
+  } catch (error) {
+    console.error('Error al recuperar tickets:', error)
+    throw new Error('No se pudieron recuperar los tickets')
+  }
+}

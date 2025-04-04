@@ -1,7 +1,8 @@
 'use server'
 import { neon } from '@neondatabase/serverless'
 import { Usuario, LoginError } from './types'
-// import { redirect } from 'next/navigation';
+import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 export async function getData() {
   if (!process.env.DATABASE_URL) {
@@ -35,9 +36,70 @@ export async function login(cedula: string, password: string): Promise<Usuario[]
   }
 }
 
+export async function guardarTicket(data: any, idVendedor: number) {
+  // console.log('si llega la data', data)
+  const fechaRegistro = new Date().toISOString().slice(0, 10) // formato YYYY-MM-DD
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is not defined in the environment variables')
+  }
+
+  const sql = neon(process.env.DATABASE_URL)
+  try {
+    // Insertar el ticket
+    const result = await sql`
+    INSERT INTO ticket (
+      fecha,
+      cliente,
+      direccion,
+      telefono,
+      total,
+      observaciones,
+      id_vendedor,
+      id_estado
+    ) VALUES (
+      ${data.fecha},
+      ${data.cliente},
+      ${data.direccion},
+      ${data.telefono},
+      ${Number(data.total)},
+      ${data.observaciones || null},
+      ${idVendedor || null},
+      1
+    )
+    RETURNING id;
+  `
+
+    const ticketId = result[0].id
+
+    // Insertar detalles del ticket (helados)
+    for (const helado of data.helados) {
+      await sql`
+        INSERT INTO ticket_detalle (
+          cantidad,
+          id_helado,
+          subtotal,
+          id_ticket
+        ) VALUES (
+          ${helado.cantidad},
+          ${helado.id},
+          ${helado.total},
+          ${ticketId}
+        )
+      `
+    }
+
+    console.log('Ticket guardado exitosamente')
+  } catch (error) {
+    console.error('Error al guardar ticket:', error)
+    throw new Error('No se pudo guardar el ticket')
+  }
+
+  // revalidatePath('/tickets/')
+  // redirect('//tickets/')
+}
+
 // import { QueryResultRow, sql } from '@vercel/postgres';
 // import bcrypt from 'bcrypt';
-// import { revalidatePath } from 'next/cache';
 
 // import { signIn, auth } from '../../auth';
 // import { AuthError } from 'next-auth';
