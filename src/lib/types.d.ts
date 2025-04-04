@@ -64,3 +64,23 @@ export interface FacturaFormData {
     sabor: string
   }[]
 }
+
+// src/lib/types.d.ts
+export interface Ticket {
+  id: number
+  fecha: string
+  cliente: string
+  direccion: string
+  telefono: string
+  total: string // Cambiar a string
+  observaciones: string | null
+  id_vendedor: number | null
+  id_estado: number
+  detalles: {
+    id: number
+    cantidad: number
+    id_helado: number
+    subtotal: number
+    id_ticket: number
+  }[]
+}

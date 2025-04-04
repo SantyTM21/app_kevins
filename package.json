@@ -9,18 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@heroicons/react": "^2.2.0",
-    "@heroui/react": "^2.7.5",
+    "@heroicons/react": "2.2.0",
+    "@heroui/react": "2.7.5",
     "@neondatabase/serverless": "0.10.4",
-    "bcrypt": "^5.1.1",
-    "framer-motion": "^12.6.2",
+    "bcrypt": "5.1.1",
+    "framer-motion": "12.6.2",
     "next": "15.2.2",
     "next-auth": "4.24.11",
-    "pg": "^8.14.1",
+    "pg": "8.14.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-hook-form": "^7.55.0",
-    "zod": "^3.24.2"
+    "react-hook-form": "7.55.0",
+    "zod": "3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

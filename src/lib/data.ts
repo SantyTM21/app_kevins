@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless'
-import { Helado, SaborHelado } from './types'
+import { Helado, SaborHelado, Ticket } from './types'
 
 // Helados
 export async function getHelados(): Promise<Helado[]> {
@@ -87,25 +87,6 @@ export async function getSaboresHelados(id: number): Promise<SaborHelado[]> {
     console.error('Error de base de datos:', error)
     throw new Error('Failed to fetch flavors data.')
   }
-}
-
-interface Ticket {
-  id: number
-  fecha: string
-  cliente: string
-  direccion: string
-  telefono: string
-  total: number
-  observaciones: string | null
-  id_vendedor: number | null
-  id_estado: number
-  detalles: {
-    id: number
-    cantidad: number
-    id_helado: number
-    subtotal: number
-    id_ticket: number
-  }[]
 }
 
 export async function getAllTickets(): Promise<Ticket[]> {

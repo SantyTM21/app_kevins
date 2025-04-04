@@ -1,6 +1,6 @@
 'use server'
 import { neon } from '@neondatabase/serverless'
-import { Usuario, LoginError } from './types'
+import { Usuario, LoginError, Ticket } from './types'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
@@ -98,6 +98,27 @@ export async function guardarTicket(data: any, idVendedor: number) {
   // redirect('//tickets/')
 }
 
+export async function despacharTicket(idTicket: number, idDespachador: number): Promise<Ticket[]> {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is not defined in the environment variables')
+  }
+
+  const sql = neon(process.env.DATABASE_URL)
+
+  try {
+    const data = await sql`
+      UPDATE ticket
+      SET id_estado = 2, id_despachador = ${idDespachador}
+      WHERE id = ${idTicket}
+      RETURNING *;
+    `
+    revalidatePath('/ver-pedidos/')
+    return data as Ticket[]
+  } catch (error) {
+    console.error('Error al actualizar ticket:', error)
+    throw new Error('No se pudo actualizar el ticket')
+  }
+}
 // import { QueryResultRow, sql } from '@vercel/postgres';
 // import bcrypt from 'bcrypt';
 

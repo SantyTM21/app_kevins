@@ -6,7 +6,7 @@ export default async function Page() {
   // console.log(helados)
   return (
     <div>
-      <h1>pedidos</h1>
+      <h1 className='text-center text-2xl font-bold mb-4'>Hacer un pedido de helados</h1>
       <FacturaForm helados={helados} />
     </div>
   )
